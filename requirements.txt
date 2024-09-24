@@ -1,4 +1,4 @@
-python-docx
+-e git+https://github.com/visnets/python-docm.git
 docxcompose
 jinja2
 lxml
