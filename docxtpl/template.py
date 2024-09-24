@@ -49,7 +49,10 @@ class DocxTemplate(object):
 
     def init_docx(self, reload: bool = True):
         if not self.docx or (self.is_rendered and reload):
-            self.docx = Document(self.template_file)
+            if self.template_file.endswith('.docm'):
+                self.docx = Document(self.template_file)
+            else:
+                self.docx = Document(self.template_file)
             self.is_rendered = False
 
     def render_init(self):
@@ -735,7 +738,9 @@ class DocxTemplate(object):
                 with zipfile.ZipFile(docx_file, "w") as zout:
                     for item in zin.infolist():
                         buf = zin.read(item.filename)
-                        if item.filename in self.zipname_to_replace:
+                        if item.filename == "word/vbaProject.bin":
+                            zout.writestr(item, buf)  # Preserve the macro
+                        elif item.filename in self.zipname_to_replace:
                             zout.writestr(item, self.zipname_to_replace[item.filename])
                         elif (
                             item.filename.startswith("word/media/")
@@ -848,8 +853,10 @@ class DocxTemplate(object):
         return self.docx._part.relate_to(url, REL_TYPE.HYPERLINK, is_external=True)
 
     def save(self, filename: Union[IO[bytes], str, PathLike], *args, **kwargs) -> None:
-        # case where save() is called without doing rendering
-        # ( user wants only to replace image/embedded/zipname )
+        # If template file is .docm, save as .docm
+        if self.template_file.endswith('.docm') and not filename.endswith('.docm'):
+            filename = filename.replace('.docx', '.docm')
+
         if not self.is_saved and not self.is_rendered:
             self.docx = Document(self.template_file)
         self.pre_processing()
