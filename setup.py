@@ -63,10 +63,13 @@ setup(name='docxtpl',
       author='Eric Lapouyade',
       license='LGPL 2.1',
       packages=['docxtpl'],
-      install_requires=['python-docx>=1.1.1',
-                        'docxcompose',
-                        'jinja2',
-                        'lxml'],
+      install_requires=[
+          'docxcompose',
+          'jinja2',
+          'lxml',
+          'git+https://github.com/visnets/python-docx.git#egg=python-docx'  # Custom python-docx version
+      ],
       extras_require={'docs': ['Sphinx', 'sphinxcontrib-napoleon']},
       eager_resources=['docs'],
       zip_safe=False)
+
